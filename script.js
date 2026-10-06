@@ -1,83 +1,77 @@
-const searchBtn = document.getElementById('search-btn');
-const searchInput = document.getElementById('search-input');
+const $ = (id) => document.getElementById(id);
 
-const avatar = document.getElementById('avatar');
-const fullName = document.getElementById('full-name');
-const usernameDisplay = document.getElementById('username');
-const bio = document.getElementById('bio');
-const userLocation = document.getElementById('location');
-const userCompany = document.getElementById('company');
+// ---- system requirements gate ----
+const REQUIREMENTS = [
+    ['Modern JavaScript (async/await)', () => { try { new Function('async () => {}'); return true; } catch { return false; } }],
+    ['Fetch API', () => typeof fetch === 'function'],
+    ['CSS Grid', () => window.CSS && CSS.supports('display', 'grid')],
+    ['Internet connection', () => navigator.onLine],
+    ['Screen width of at least 320px', () => window.innerWidth >= 320],
+];
 
-const reposCount = document.getElementById('repos');
-const followersCount = document.getElementById('followers');
-const followingCount = document.getElementById('following');
-const gistsCount = document.getElementById('gists');
+function checkRequirements() {
+    const failed = REQUIREMENTS.filter(([, test]) => !test()).map(([name]) => name);
+    $('req-list').replaceChildren(...failed.map((name) => Object.assign(document.createElement('li'), { textContent: name })));
+    $('req-screen').hidden = !failed.length;
+    $('app').hidden = failed.length > 0;
+}
 
-const reposContainer = document.getElementById('repos-container');
+$('req-retry').addEventListener('click', checkRequirements);
+window.addEventListener('online', checkRequirements);
+window.addEventListener('offline', checkRequirements);
+checkRequirements();
+
+// ---- profile ----
+function showError(msg) {
+    $('error').textContent = msg;
+    $('error').hidden = !msg;
+}
 
 async function getGitHubProfile(username) {
+    showError('');
     try {
-        const profileResponse = await fetch(`https://api.github.com/users/${username}`);
-        
-        if (!profileResponse.ok) {
-            throw new Error('User not found');
-        }
-        
-        const profileData = await profileResponse.json();
-        
-        const reposResponse = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=3`);
-        const reposData = await reposResponse.json();
-        
-        updateUI(profileData, reposData);
+        const profileResponse = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}`);
+        if (!profileResponse.ok) throw new Error(profileResponse.status === 404 ? 'User not found' : 'GitHub request failed, try again later');
+        const profile = await profileResponse.json();
+
+        const reposResponse = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}/repos?sort=updated&per_page=3`);
+        const repos = reposResponse.ok ? await reposResponse.json() : [];
+
+        updateUI(profile, repos);
     } catch (error) {
-        alert(error.message);
+        showError(error.message);
     }
 }
 
 function updateUI(profile, repos) {
-    avatar.src = profile.avatar_url;
-    avatar.alt = profile.name || profile.login;
-    
-    fullName.textContent = profile.name || profile.login;
-    usernameDisplay.textContent = profile.login;
-    bio.textContent = profile.bio || "No bio available";
-    
-    userLocation.textContent = profile.location || "Not Available";
-    userCompany.textContent = profile.company || "Not Available";
-    
-    reposCount.textContent = profile.public_repos;
-    followersCount.textContent = profile.followers;
-    followingCount.textContent = profile.following;
-    gistsCount.textContent = profile.public_gists;
-    
-    reposContainer.innerHTML = '';
-    
-    repos.forEach(repo => {
-        const repoHTML = `
-            <div class="work1">
-                <h3><a href="${repo.html_url}" target="_blank" style="color: #1e2533; text-decoration: none;">${repo.name}</a></h3>
-                <div class="data">
-                    <h6>⭐ ${repo.stargazers_count}</h6>
-                    <h6>🍴 ${repo.forks_count}</h6>
-                </div>
-            </div>
-        `;
-        reposContainer.innerHTML += repoHTML;
-    });
+    $('avatar').src = profile.avatar_url;
+    $('avatar').alt = profile.name || profile.login;
+    $('full-name').textContent = profile.name || profile.login;
+    $('username').textContent = profile.login;
+    $('bio').textContent = profile.bio || 'No bio available';
+    $('location').textContent = profile.location || 'Not Available';
+    $('company').textContent = profile.company || 'Not Available';
+    $('repos').textContent = profile.public_repos;
+    $('followers').textContent = profile.followers;
+    $('following').textContent = profile.following;
+    $('gists').textContent = profile.public_gists;
+
+    $('repos-container').replaceChildren(...repos.map((repo) => {
+        const card = document.createElement('div');
+        card.className = 'work1';
+        const link = Object.assign(document.createElement('a'), {
+            href: repo.html_url, target: '_blank', rel: 'noopener', textContent: repo.name,
+        });
+        const data = document.createElement('div');
+        data.className = 'data';
+        data.textContent = `⭐ ${repo.stargazers_count}   🍴 ${repo.forks_count}`;
+        card.append(link, data);
+        return card;
+    }));
 }
 
-searchBtn.addEventListener('click', () => {
-    const username = searchInput.value.trim();
-    if (username !== "") {
-        getGitHubProfile(username);
-    }
-});
-
-searchInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
-        const username = searchInput.value.trim();
-        if (username !== "") {
-            getGitHubProfile(username);
-        }
-    }
+$('search-form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    const username = $('search-input').value.trim();
+    if (username) getGitHubProfile(username);
 });
