@@ -3,80 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Git profile</title>
-    <link rel="stylesheet" href="git.css">    
+    <title>Git Profile</title>
+    <link rel="stylesheet" href="git.css">
     <script src="script.js" defer></script>
 </head>
 <body>
-    <header class="top-nav">
-     <div class="git">
-        <h3>Git Profile</h3>
-       <img class="git-logo" src="Github-Logo.webp">
-     </div>
-        
-    
-    <div class="search">
-        <input  id = "search-input" class="search-bar" type="text" placeholder="Search GitHub username...">
-    <button id="search-btn" class="search-button">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      </button>
-    </div>
-    </header>
-    
-    <div class="profile-side">
-        <div class = "profile">
-            <h3>Profile</h3>
-        <div class="profile-img">
-            <img id="avatar" src="177003112.jpg">
-             </div>
-         <div class="profile-name">
-             <h1 id="full-name"> Name </h1>
-              </div>
-         <div class="profile-id">
-              <h4 id="username"> Username </h4>
-          </div>
-     <span class="bio-data">
-          <h5 id="bio"> Bio </h5>
-     </span>
-
-<div class="location">
-    <img src="location.webp">
-    <h5 id="location"> Earth </h5>
-</div>
-<div class="college">
-    <img  src="building.png">
-<h5 id="company">..............................</h5>
-</div>
-</div>
-              
-         <div class="stats-grid">
-        <div class="stat-box">
-            <span class="label">REPOS</span>
-            <span id="repos" class="value"></span>
-        </div>
-        <div class="stat-box">
-            <span class="label">FOLLOWERS</span>
-            <span id="followers" class="value"></span>
-        </div>
-        <div class="stat-box">
-            <span class="label">FOLLOWING</span>
-            <span id="following" class="value"></span>
-        </div>
-        <div class="stat-box">
-            <span class="label">GISTS</span>
-            <span  id="gists" class="value"></span>
+    <div id="req-screen" class="req-screen" hidden>
+        <div class="req-card">
+            <h2>System requirements not met</h2>
+            <p>Your browser or device can't run this app. Fix the items below and reload.</p>
+            <ul id="req-list"></ul>
+            <button id="req-retry" class="btn">Check again</button>
         </div>
     </div>
-        
 
-    <div class = "work">
-     <h3>Latest work</h3>
- <div id="repos-container">
-    
- </div>
+    <div id="app" hidden>
+        <header class="top-nav">
+            <div class="brand">
+                <img class="git-logo" src="Github-Logo.webp" alt="">
+                <h1>Git Profile</h1>
+            </div>
+            <form id="search-form" class="search" role="search">
+                <input id="search-input" class="search-bar" type="text" placeholder="Search GitHub username..." aria-label="GitHub username" autocomplete="off">
+                <button id="search-btn" class="search-button" type="submit" aria-label="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </button>
+            </form>
+        </header>
+
+        <p id="error" class="error" role="alert" hidden></p>
+
+        <main class="layout">
+            <section class="card profile">
+                <img id="avatar" class="avatar" src="177003112.jpg" alt="Avatar">
+                <h2 id="full-name">Name</h2>
+                <h3 id="username">Username</h3>
+                <p id="bio" class="bio">Bio</p>
+                <div class="meta">
+                    <div class="meta-row"><img src="location.webp" alt=""><span id="location">Earth</span></div>
+                    <div class="meta-row"><img src="building.png" alt=""><span id="company">Not Available</span></div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-box"><span class="label">REPOS</span><span id="repos" class="value">-</span></div>
+                    <div class="stat-box"><span class="label">FOLLOWERS</span><span id="followers" class="value">-</span></div>
+                    <div class="stat-box"><span class="label">FOLLOWING</span><span id="following" class="value">-</span></div>
+                    <div class="stat-box"><span class="label">GISTS</span><span id="gists" class="value">-</span></div>
+                </div>
+            </section>
+
+            <section class="card work">
+                <h2>Latest work</h2>
+                <div id="repos-container" class="repos"></div>
+            </section>
+        </main>
     </div>
-
-</div>    
-</div>
 </body>
 </html>
